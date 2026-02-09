@@ -5,12 +5,3 @@ extensions:
   - id: csvImporter
     type: widget
     name: CSV Importer
-    schema:
-      groups:
-        - id: appearance
-          title: Appearance
-          fields:
-            - id: primary_color
-              title: Primary color
-              type: string
-              ui: color

@@ -1,9 +1,6 @@
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
-
-import { hexToHSL } from "@/shared/utils";
+import { useCallback, useState } from "react";
 
 export default () => {
-  const inited = useRef(false);
   const [csvData, setCsvData] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [baseUrl, setBaseUrl] = useState<string>(
@@ -13,27 +10,6 @@ export default () => {
   const [projectId, setProjectId] = useState<string>("");
   const [modelId, setModelId] = useState<string>("");
   const [apiToken, setApiToken] = useState<string>("");
-
-  useLayoutEffect(() => {
-    if (!inited.current) {
-      const { primaryColor } =
-        (
-          window as Window & {
-            _reearth_plugin_extension_init_data_?: {
-              primaryColor?: string;
-            };
-          }
-        )._reearth_plugin_extension_init_data_ ?? {};
-
-      if (primaryColor) {
-        const hslColor = hexToHSL(primaryColor);
-        if (hslColor) {
-          document.documentElement.style.setProperty("--primary", hslColor);
-        }
-      }
-      inited.current = true;
-    }
-  }, []);
 
   const handleFileUpload = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
