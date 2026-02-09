@@ -1,4 +1,4 @@
-import html from "@distui/demo/main/index.html?raw";
+import html from "@distui/csvImporter/main/index.html?raw";
 
 import { GlobalThis, MouseEventProps } from "@/shared/reearthTypes";
 
@@ -18,7 +18,7 @@ reearth.extension.on("message", (message: unknown) => {
   ) {
     reearth.camera.flyTo(
       { lat: 35.68505398711427, lng: 139.75584459383325, height: 5000 },
-      { duration: 1 }
+      { duration: 1 },
     );
   }
 });

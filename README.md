@@ -1,6 +1,6 @@
-# Re:Earth Visualizer Plugin ShadCN Template
+# CMS CSV Importer
 
-This template provides a minimal setup to develop a Re:Earth Visualizer Plugin with Vite, React, ShadCN, and Tailwind CSS.
+A Re:Earth Visualizer Plugin for importing CSV data into CMS, built with Vite, React, ShadCN, and Tailwind CSS.
 
 ## Tech Stack
 
@@ -87,11 +87,12 @@ yarn manage
 This interactive tool provides a menu-driven interface to:
 
 1. **Create Extension** - Generate new extensions with multiple UI components
-2. **Create UI** - Add new UI components to existing extensions  
+2. **Create UI** - Add new UI components to existing extensions
 3. **Remove Extension** - Delete extensions and all associated UIs
 4. **Remove UI** - Remove individual UI components
 
 **Features:**
+
 - **Automated Setup**: Creates all necessary files, folder structure, and templates
 - **Package.json Integration**: Automatically adds/removes dev and build scripts
 - **YAML Management**: Updates `public/reearth.yml` with extension definitions
@@ -100,6 +101,7 @@ This interactive tool provides a menu-driven interface to:
 - **Auto-build**: Triggers initial builds for new extensions/UIs
 
 **Naming Rules:**
+
 - Extension IDs and UI names must start with a letter (a-z, A-Z)
 - Can contain letters, digits, and underscores only
 - No special characters, spaces, or reserved words
@@ -179,7 +181,6 @@ This process is lengthy and results in low development efficiency.
 We are working on adding a new feature to Re:Earth Visualizer to improve the development experience (DX) for plugins. Follow these steps:
 
 0. Preparation:
-
    - Run Re:Earth Visualizer locally. Only the front-end is required; you can use any backend, such as the OSS backend.
    - Update the plugin code. You can test with the demo.
 
@@ -201,12 +202,10 @@ it will:
 Done. Now Re:Earth Visualizer will offer two icon buttons in the editor header:
 
 - `Install Dev Plugins` ![image](https://github.com/user-attachments/assets/aa5cf46c-019e-4df6-82f7-c18aa18fe108)
-
   - This fetches plugin files from the plugin preview, automatically zips, and installs them.
   - Click this only when initially setting up and after modifying `reearth.yml`.
 
 - `Reload Dev Plugin Extensions` ![image](https://github.com/user-attachments/assets/493b1bf2-0ffa-43d7-9166-849b1e7a5e30)
-
   - This reloads all extensions from the plugin preview.
   - Only the plugin reloads, which is much faster than reloading the entire page.
 
