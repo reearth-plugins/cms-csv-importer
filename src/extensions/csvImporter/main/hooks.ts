@@ -79,13 +79,6 @@ const uploadToCMS = async (
 export default () => {
   const [csvData, setCsvData] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
-  const [baseUrl, setBaseUrl] = useState<string>(
-    "https://api.cms.reearth.io/api",
-  );
-  const [workspaceId, setWorkspaceId] = useState<string>("");
-  const [projectId, setProjectId] = useState<string>("");
-  const [modelId, setModelId] = useState<string>("");
-  const [apiToken, setApiToken] = useState<string>("");
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<{
@@ -118,16 +111,41 @@ export default () => {
       return;
     }
 
-    if (!baseUrl || !workspaceId || !projectId || !modelId || !apiToken) {
-      alert("Please fill in all required fields");
-      return;
-    }
-
     setIsImporting(true);
     setProgress({ current: 0, total: 0, success: 0, failed: 0 });
 
     try {
       console.log("Starting CSV import...");
+
+      // Request CMS settings from extension
+      console.log("Requesting CMS settings...");
+      const settingsPromise = new Promise<{
+        baseUrl: string;
+        workspaceId: string;
+        projectId: string;
+        modelId: string;
+        apiToken: string;
+      }>((resolve) => {
+        const handler = (e: MessageEvent) => {
+          if (e.data?.action === "cmsSettings") {
+            window.removeEventListener("message", handler);
+            resolve(e.data.payload);
+          }
+        };
+        window.addEventListener("message", handler);
+        window.parent.postMessage({ action: "getCMSSettings" }, "*");
+      });
+
+      const settings = await settingsPromise;
+      console.log("CMS settings received");
+
+      const { baseUrl, workspaceId, projectId, modelId, apiToken } = settings;
+
+      if (!baseUrl || !workspaceId || !projectId || !modelId || !apiToken) {
+        alert("Please configure CMS settings in the widget inspector");
+        setIsImporting(false);
+        return;
+      }
 
       // First, get model schema
       console.log("Fetching model schema...");
@@ -226,23 +244,13 @@ export default () => {
     } finally {
       setIsImporting(false);
     }
-  }, [csvData, baseUrl, workspaceId, projectId, modelId, apiToken]);
+  }, [csvData]);
 
   return {
     handleFileUpload,
     handleImport,
     csvData,
     fileName,
-    baseUrl,
-    setBaseUrl,
-    workspaceId,
-    setWorkspaceId,
-    projectId,
-    setProjectId,
-    modelId,
-    setModelId,
-    apiToken,
-    setApiToken,
     isImporting,
     isCompleted,
     progress,

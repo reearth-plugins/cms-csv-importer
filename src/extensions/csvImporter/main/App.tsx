@@ -15,23 +15,8 @@ import { Label } from "@/shared/components/ui/label";
 import { Progress } from "@/shared/components/ui/progress";
 
 function App() {
-  const {
-    handleFileUpload,
-    handleImport,
-    baseUrl,
-    setBaseUrl,
-    workspaceId,
-    setWorkspaceId,
-    projectId,
-    setProjectId,
-    modelId,
-    setModelId,
-    apiToken,
-    setApiToken,
-    isImporting,
-    isCompleted,
-    progress,
-  } = useHooks();
+  const { handleFileUpload, handleImport, isImporting, isCompleted, progress } =
+    useHooks();
 
   const progressPercentage =
     progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
@@ -41,70 +26,11 @@ function App() {
       <CardHeader>
         <CardTitle>CMS CSV Importer</CardTitle>
         <CardDescription>
-          Upload a CSV file to import data into CMS
+          Configure CMS settings in the widget inspector, then upload a CSV file
+          to import
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="base-url">Base URL</Label>
-          <Input
-            id="base-url"
-            type="text"
-            placeholder="Enter base URL"
-            value={baseUrl}
-            onChange={(e) => setBaseUrl(e.target.value)}
-            disabled={isImporting}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="workspace-id">Workspace ID</Label>
-          <Input
-            id="workspace-id"
-            type="text"
-            placeholder="Enter workspace ID"
-            value={workspaceId}
-            onChange={(e) => setWorkspaceId(e.target.value)}
-            disabled={isImporting}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="project-id">Project ID</Label>
-          <Input
-            id="project-id"
-            type="text"
-            placeholder="Enter project ID"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            disabled={isImporting}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="model-id">Model ID</Label>
-          <Input
-            id="model-id"
-            type="text"
-            placeholder="Enter model ID"
-            value={modelId}
-            onChange={(e) => setModelId(e.target.value)}
-            disabled={isImporting}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="api-token">Integration API Token</Label>
-          <Input
-            id="api-token"
-            type="password"
-            placeholder="Enter API token"
-            value={apiToken}
-            onChange={(e) => setApiToken(e.target.value)}
-            disabled={isImporting}
-          />
-        </div>
-
         <div className="space-y-2">
           <Label htmlFor="csv-file">CSV File</Label>
           <Input

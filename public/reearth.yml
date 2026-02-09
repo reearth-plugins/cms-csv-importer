@@ -5,3 +5,29 @@ extensions:
   - id: csvImporter
     type: widget
     name: CSV Importer
+    schema:
+      groups:
+        - id: cmsSettings
+          title: CMS Settings
+          fields:
+            - id: baseUrl
+              type: url
+              title: Base URL
+              description: CMS API base URL
+              defaultValue: https://api.cms.reearth.io/api
+            - id: workspaceId
+              type: string
+              title: Workspace ID
+              description: CMS Workspace ID
+            - id: projectId
+              type: string
+              title: Project ID
+              description: CMS Project ID
+            - id: modelId
+              type: string
+              title: Model ID
+              description: CMS Model ID
+            - id: apiToken
+              type: string
+              title: Integration API Token
+              description: CMS Integration API Token
