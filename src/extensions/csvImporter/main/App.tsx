@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { Progress } from "@/shared/components/ui/progress";
 
 function App() {
   const {
@@ -27,7 +28,13 @@ function App() {
     setModelId,
     apiToken,
     setApiToken,
+    isImporting,
+    isCompleted,
+    progress,
   } = useHooks();
+
+  const progressPercentage =
+    progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
 
   return (
     <Card>
@@ -46,6 +53,7 @@ function App() {
             placeholder="Enter base URL"
             value={baseUrl}
             onChange={(e) => setBaseUrl(e.target.value)}
+            disabled={isImporting}
           />
         </div>
 
@@ -57,6 +65,7 @@ function App() {
             placeholder="Enter workspace ID"
             value={workspaceId}
             onChange={(e) => setWorkspaceId(e.target.value)}
+            disabled={isImporting}
           />
         </div>
 
@@ -68,6 +77,7 @@ function App() {
             placeholder="Enter project ID"
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
+            disabled={isImporting}
           />
         </div>
 
@@ -79,6 +89,7 @@ function App() {
             placeholder="Enter model ID"
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
+            disabled={isImporting}
           />
         </div>
 
@@ -90,6 +101,7 @@ function App() {
             placeholder="Enter API token"
             value={apiToken}
             onChange={(e) => setApiToken(e.target.value)}
+            disabled={isImporting}
           />
         </div>
 
@@ -100,13 +112,41 @@ function App() {
             type="file"
             accept=".csv"
             onChange={handleFileUpload}
+            disabled={isImporting}
           />
         </div>
 
-        <Button className="w-full gap-2" onClick={handleImport}>
+        <Button
+          className="w-full gap-2"
+          onClick={handleImport}
+          disabled={isImporting}
+        >
           <Upload className="w-4 h-4" />
-          Import CSV to CMS
+          {isImporting ? "Importing..." : "Import CSV to CMS"}
         </Button>
+
+        {(isImporting || isCompleted) && progress.total > 0 && (
+          <div className="space-y-2 pt-2 border-t">
+            {isCompleted && (
+              <div className="text-center text-sm font-semibold text-green-600">
+                Import Completed
+              </div>
+            )}
+            <div className="flex justify-between text-sm">
+              <span>
+                Progress: {progress.current} / {progress.total}
+              </span>
+              <span>{progressPercentage.toFixed(0)}%</span>
+            </div>
+            <Progress value={progressPercentage} />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span className="text-green-600">
+                Success: {progress.success}
+              </span>
+              <span className="text-red-600">Failed: {progress.failed}</span>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
