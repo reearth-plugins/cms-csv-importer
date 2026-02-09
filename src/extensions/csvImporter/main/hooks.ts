@@ -1,86 +1,16 @@
 import { useCallback, useState } from "react";
 import { parse } from "csv-parse/browser/esm/sync";
 
-// Get model schema from CMS
-const getModelSchema = async (
-  baseUrl: string,
-  workspaceId: string,
-  projectId: string,
-  modelId: string,
-  token: string,
-): Promise<any> => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/${workspaceId}/projects/${projectId}/models/${modelId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`CMS API Error: ${response.status} - ${errorText}`);
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    throw error instanceof Error ? error : new Error("Unknown error occurred");
-  }
-};
-
-// Upload data to CMS
-const uploadToCMS = async (
-  baseUrl: string,
-  workspaceId: string,
-  projectId: string,
-  modelId: string,
-  token: string,
-  data: Record<string, string>,
-  fieldMap: Map<string, string>,
-): Promise<any> => {
-  try {
-    // Map CSV data to CMS fields using pre-built field map
-    const fields = Object.entries(data)
-      .filter(([key]) => fieldMap.has(key))
-      .map(([key, value]) => ({
-        key,
-        type: fieldMap.get(key)!,
-        value,
-      }));
-
-    const response = await fetch(
-      `${baseUrl}/${workspaceId}/projects/${projectId}/models/${modelId}/items`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fields }),
-      },
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`CMS API Error: ${response.status} - ${errorText}`);
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    throw error instanceof Error ? error : new Error("Unknown error occurred");
-  }
-};
+import { getModelSchema, uploadToCMS } from "./cmsApi";
 
 export default () => {
   const [csvData, setCsvData] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [skippedColumns, setSkippedColumns] = useState<string[]>([]);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [progress, setProgress] = useState<{
     current: number;
     total: number;
@@ -107,11 +37,13 @@ export default () => {
 
   const handleImport = useCallback(async () => {
     if (!csvData) {
-      alert("Please select a CSV file first");
+      setErrorMessage("Please select a CSV file first");
       return;
     }
 
     setIsImporting(true);
+    setErrorMessage("");
+    setUploadErrors([]);
     setProgress({ current: 0, total: 0, success: 0, failed: 0 });
 
     try {
@@ -142,7 +74,9 @@ export default () => {
       const { baseUrl, workspaceId, projectId, modelId, apiToken } = settings;
 
       if (!baseUrl || !workspaceId || !projectId || !modelId || !apiToken) {
-        alert("Please configure CMS settings in the widget inspector");
+        setErrorMessage(
+          "Please configure CMS settings in the widget inspector",
+        );
         setIsImporting(false);
         return;
       }
@@ -177,7 +111,7 @@ export default () => {
       console.log(`Parsed ${records.length} rows from CSV`);
 
       if (records.length === 0) {
-        alert("No data found in CSV file");
+        setErrorMessage("No data found in CSV file");
         setIsImporting(false);
         return;
       }
@@ -194,6 +128,9 @@ export default () => {
           "Headers not in schema (will be skipped):",
           invalidHeaders,
         );
+        setSkippedColumns(invalidHeaders);
+      } else {
+        setSkippedColumns([]);
       }
       console.log("Valid headers:", validHeaders);
 
@@ -203,6 +140,7 @@ export default () => {
       // Upload each row to CMS
       let successCount = 0;
       let errorCount = 0;
+      const errors: string[] = [];
 
       for (let i = 0; i < records.length; i++) {
         try {
@@ -219,6 +157,10 @@ export default () => {
           console.log(`Uploaded row ${i + 1}/${records.length}`);
         } catch (error) {
           errorCount++;
+          const errorMsg =
+            error instanceof Error ? error.message : "Unknown error";
+          const errorText = `Row ${i + 1}: ${errorMsg}`;
+          errors.push(errorText);
           console.error(`Failed to upload row ${i + 1}:`, error);
         }
 
@@ -231,15 +173,15 @@ export default () => {
         });
       }
 
+      setUploadErrors(errors);
       setIsCompleted(true);
       alert(
         `Import completed!\n\nTotal: ${records.length}\nSuccess: ${successCount}\nFailed: ${errorCount}`,
       );
     } catch (error) {
       console.error("Import error:", error);
-      alert(
-        `Import failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      setErrorMessage(`Import failed: ${errorMsg}`);
       setIsCompleted(false);
     } finally {
       setIsImporting(false);
@@ -253,6 +195,9 @@ export default () => {
     fileName,
     isImporting,
     isCompleted,
+    errorMessage,
+    skippedColumns,
+    uploadErrors,
     progress,
   };
 };

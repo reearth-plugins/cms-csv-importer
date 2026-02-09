@@ -15,8 +15,16 @@ import { Label } from "@/shared/components/ui/label";
 import { Progress } from "@/shared/components/ui/progress";
 
 function App() {
-  const { handleFileUpload, handleImport, isImporting, isCompleted, progress } =
-    useHooks();
+  const {
+    handleFileUpload,
+    handleImport,
+    isImporting,
+    isCompleted,
+    errorMessage,
+    skippedColumns,
+    uploadErrors,
+    progress,
+  } = useHooks();
 
   const progressPercentage =
     progress.total > 0 ? (progress.current / progress.total) * 100 : 0;
@@ -31,6 +39,11 @@ function App() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {errorMessage && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
+            {errorMessage}
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="csv-file">CSV File</Label>
           <Input
@@ -51,6 +64,13 @@ function App() {
           {isImporting ? "Importing..." : "Import CSV to CMS"}
         </Button>
 
+        {skippedColumns.length > 0 && (
+          <div className="p-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded">
+            <div className="font-semibold mb-1">Skipped Columns:</div>
+            <div className="text-xs">{skippedColumns.join(", ")}</div>
+          </div>
+        )}
+
         {(isImporting || isCompleted) && progress.total > 0 && (
           <div className="space-y-2 pt-2 border-t">
             {isCompleted && (
@@ -70,6 +90,17 @@ function App() {
                 Success: {progress.success}
               </span>
               <span className="text-red-600">Failed: {progress.failed}</span>
+            </div>
+          </div>
+        )}
+
+        {uploadErrors.length > 0 && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded max-h-40 overflow-y-auto">
+            <div className="font-semibold mb-1">Upload Errors:</div>
+            <div className="text-xs space-y-1">
+              {uploadErrors.map((error, index) => (
+                <div key={index}>• {error}</div>
+              ))}
             </div>
           </div>
         )}
